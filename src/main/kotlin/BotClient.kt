@@ -9,18 +9,19 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 
-fun getStandings(authToken: String) : String {
-    val ok = OkHttpClient()
+fun getStandingsByCompetition(authToken: String, competition: String) : String {
+    val client = OkHttpClient()
     val req = Request.Builder()
         .addHeader("X-Auth-Token", authToken)
-        .url("https://api.football-data.org/v2/competitions/PL/standings")
+        .url("https://api.football-data.org/v2/competitions/{competition}/standings")
         .build()
-    return ok.newCall(req).execute().use { response ->
+
+    return client.newCall(req).execute().use { response ->
         val table: List<TablePosition> = Gson()
-            .fromJson(response.body!!.string(), Response::class.java)
+            .fromJson(response.body!!.string(), StandingsResponse::class.java)
             .standings[0]
             .table
-        val longestSeq: Int = table.map { "${it.position}. ${it.team.name}".length }.max()!!
+        val longestSeq: Int = table.map { "${it.position}. ${it.team.name}".length }.maxOrNull() ?: 0
         table.joinToString(separator = "\n") { tablePosition ->
             val prefix: String = "${tablePosition.position}. ${tablePosition.team.name}"
             "$prefix${" ".repeat(longestSeq - prefix.length)} | ${tablePosition.points}"
@@ -41,7 +42,7 @@ fun main(args: Array<String>) {
             }
         }
         .flatMap(Message::getChannel)
-        .flatMap { it.createMessage("`${getStandings(args[1])}`") }
+        .flatMap { it.createMessage("`${getStandingsByCompetition(args[1], "pl")}`") }
         .subscribe()
 
     client.onDisconnect().block()

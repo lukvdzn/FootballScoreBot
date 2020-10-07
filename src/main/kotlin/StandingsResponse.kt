@@ -1,5 +1,5 @@
 
-data class Response(val standings: List<Standings>)
+data class StandingsResponse(val standings: List<Standings>)
 
 data class Standings(val table: List<TablePosition>)
 
