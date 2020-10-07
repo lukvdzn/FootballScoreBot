@@ -1,4 +1,4 @@
-enum class Competitions(val id: String, val competitionName: String) {
+enum class Competition(val id: String, val competitionName: String) {
     BSA("2013", "Brazilian Division One"),
     PL("2021", "Premier League"),
     ELC("2016", "Championship"),
@@ -10,5 +10,9 @@ enum class Competitions(val id: String, val competitionName: String) {
     DED("2003", "Evredivise"),
     PPL("2017", "Portuguese Primera Dvision"),
     PD("2014", "La Liga"),
-    WC("2000", "World Cup")
+    WC("2000", "World Cup");
+
+    companion object {
+        fun contains(name: String) = values().map { it.name }.contains(name)
+    }
 }
