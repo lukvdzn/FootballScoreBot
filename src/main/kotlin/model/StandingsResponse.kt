@@ -1,4 +1,4 @@
-
+package model
 data class StandingsResponse(val standings: List<Standings>)
 
 data class Standings(val table: List<TablePosition>)
