@@ -1,15 +1,15 @@
 package command
 
 import model.HelpSubCommands
-import model.contains
+import contains
 import model.handleSubCommand
-import requests.getStandingsByCompetition
+import requests.FootballDataRetriever
 
 class StandingsCommand : CommandExecutor {
 
     override fun execute(reply: CommandReply) {
         val competition: String = reply.subCommand()
-        val table: String = getStandingsByCompetition(competition)
+        val table: String = FootballDataRetriever.getStandingsByCompetition(competition)
         reply.reply(table)
     }
 }

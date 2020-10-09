@@ -4,7 +4,7 @@ import discord4j.core.`object`.entity.Message
 import discord4j.core.event.domain.message.MessageCreateEvent
 
 class CommandReply(private val event: MessageCreateEvent) {
-    private val message: Message = event.message
+    val message: Message = event.message
     private val channel = message.channel.block()!!
 
     fun reply(text: String) {

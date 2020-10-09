@@ -2,7 +2,6 @@ import command.CommandHandler
 import discord4j.core.DiscordClientBuilder
 import discord4j.core.GatewayDiscordClient
 import discord4j.core.event.domain.message.MessageCreateEvent
-import discord4j.core.event.domain.message.MessageEvent
 
 object BotClient {
     private lateinit var client: GatewayDiscordClient
@@ -17,7 +16,8 @@ object BotClient {
 
     private fun listenToMessages() {
         client.eventDispatcher
-                .on(MessageEvent::class.java)
+                .on(MessageCreateEvent::class.java)
+                .filter { it.message.author.map { user -> !user.isBot }.orElse(false) }
                 .subscribe { commandHandler.handleCommand(it as MessageCreateEvent)}
     }
 }

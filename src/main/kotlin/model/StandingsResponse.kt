@@ -1,11 +1,14 @@
 package model
-data class StandingsResponse(val standings: List<Standings>)
 
-data class Standings(val table: List<TablePosition>)
+import com.google.gson.annotations.SerializedName
 
-data class TablePosition(val position: String,
-                         val team: Team,
-                         val points: String)
+data class StandingsResponse(@SerializedName("standings") val standings: List<Standings>)
 
-data class Team(val id: String,
-                val name: String)
+data class Standings(@SerializedName("table") val table: List<TablePosition>)
+
+data class TablePosition(@SerializedName("position") val position: String,
+                         @SerializedName("team") val team: Team,
+                         @SerializedName("points") val points: String)
+
+data class Team(@SerializedName("id") val id: String,
+                @SerializedName("name") val name: String)
