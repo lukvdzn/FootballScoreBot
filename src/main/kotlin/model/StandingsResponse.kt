@@ -11,4 +11,6 @@ data class TablePosition(@SerializedName("position") val position: String,
                          @SerializedName("points") val points: String)
 
 data class Team(@SerializedName("id") val id: String,
-                @SerializedName("name") val name: String)
+                @SerializedName("name") val name: String) {
+    override fun toString() = name
+}

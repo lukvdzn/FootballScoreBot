@@ -2,6 +2,7 @@ package command
 
 import model.HelpSubCommands
 import contains
+import model.Competitions
 import model.handleSubCommand
 import requests.FootballDataRetriever
 
@@ -20,5 +21,12 @@ class HelpCommand : CommandExecutor {
         val rep = if(contains<HelpSubCommands>(subCommand)) handleSubCommand(HelpSubCommands.valueOf(subCommand))
                     else "`command:$subCommand does not exist`"
         reply.reply(rep)
+    }
+}
+
+class FixturesCommand : CommandExecutor {
+    override fun execute(reply: CommandReply) {
+        val (competition, matchday) = reply.subCommands()
+        reply.reply(FootballDataRetriever.getMatchesByCompetitionAndMatchday(competition, matchday))
     }
 }

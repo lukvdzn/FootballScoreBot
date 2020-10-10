@@ -13,4 +13,8 @@ class CommandReply(private val event: MessageCreateEvent) {
 
     // sub command may not exist -> Add another element "N/A" to prevent exception
     fun subCommand() = (message.content.split(" ") + listOf("N/A"))[1].toUpperCase()
+    // drop main command
+    fun subCommands() = (message.content.split(" ") + listOf("N/A", "N/A")).toList()
+        .drop(1)
+        .map { it.toUpperCase() }
 }

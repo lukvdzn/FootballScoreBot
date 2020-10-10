@@ -5,7 +5,8 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 class CommandHandler {
     private val commands: Map<String, CommandExecutor> = mapOf(
             "standings" to StandingsCommand(),
-            "help" to HelpCommand()
+            "help" to HelpCommand(),
+            "fixtures" to FixturesCommand()
     )
 
     fun handleCommand(event: MessageCreateEvent) {
