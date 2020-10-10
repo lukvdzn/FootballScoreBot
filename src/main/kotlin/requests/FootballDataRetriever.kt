@@ -4,13 +4,12 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import contains
 import model.Competitions
-import model.Match
-import model.TablePosition
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
+
+/** Football data provided by the Football-Data.org API */
 
 object FootballDataRetriever {
     // authentication token for api
@@ -36,17 +35,8 @@ object FootballDataRetriever {
             service.listCompetitionStandings(token, competition)
                 .execute()
                 .body()
-                ?.standings
-                ?.run {
-                    val table: List<TablePosition> = this[0].table
-                    // find longest sequence in
-                    val longestSeq: Int = table.map { "${it.position}. ${it.team.name}".length }.maxOrNull() ?: 0
-                    table.joinToString(separator = "\n") { tp ->
-                        val prefix = "${tp.position}. ${tp.team.name}"
-                        "${prefix.padEnd(longestSeq)} | ${tp.points}"
-                    }
-                } ?: "Something unexpected happened with the Response"
-
+                ?.formatStandings()
+                ?: "Something unexpected happened with the Response"
         } else "Competition \"$competition\" does not exist or is not included in current tier"
 
         return "`$string`"
@@ -56,23 +46,13 @@ object FootballDataRetriever {
         val string = if(contains<Competitions>(competition)) {
             service.listCompetitionMatchesByMatchDay(token, competition, matchDay)
                 .execute()
-                .let { response ->
-                    if(response.isSuccessful) {
-                        response.body()
-                            ?.run {
-                                matches.groupBy { it.utcDate.toLocalDate() }
-                                    .map { (date: LocalDate, m: List<Match>) -> "$date\n ${m.joinToString("\n")}\n"}
-                                    .joinToString("\n")
-                                } ?: "Something unexpected happened with the Response"
-                    } else response.errorBody()!!.string()
+                .let {
+                    if(it.isSuccessful) {
+                        it.body()?.formatMatches() ?: "Something unexpected happened with the Response"
+                    } else it.errorBody()!!.string()
                 }
         } else "Competition \"$competition\" does not exist or is not included in current tier"
 
         return "`$string`"
     }
-}
-
-fun main() {
-    val s = FootballDataRetriever.getMatchesByCompetitionAndMatchday("PD", "6")
-    print(s)
 }

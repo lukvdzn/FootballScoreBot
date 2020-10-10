@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 
 data class Result(@SerializedName("homeTeam") val homeTeam: Int = 0,
                   @SerializedName("awayTeam") val awayTeam: Int = 0) {
-    override fun toString() = "$homeTeam:$awayTeam"
+    override fun toString() = " $homeTeam:$awayTeam "
 }
 
 data class Score(@SerializedName("fullTime") val fullTimeResult: Result,
@@ -25,8 +25,10 @@ data class Match(@SerializedName("id") val id: String,
                  @SerializedName("score") val score: Score,
                  @SerializedName("homeTeam") val homeTeam: Team,
                  @SerializedName("awayTeam") val awayTeam: Team) {
-    override fun toString(): String {
-        return """$homeTeam ${if(status == Status.PAUSED || status == Status.IN_PLAY || status == Status.FINISHED) 
-            score.toString() else utcDate.toLocalTime().toString()} $awayTeam""".trimMargin()
+
+    fun customScoreLine() : String {
+        return if(status == Status.PAUSED || status == Status.IN_PLAY || status == Status.FINISHED) {
+            score.toString()
+        } else utcDate.toLocalTime().toString()
     }
 }

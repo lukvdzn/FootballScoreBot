@@ -2,7 +2,6 @@ package command
 
 import model.HelpSubCommands
 import contains
-import model.Competitions
 import model.handleSubCommand
 import requests.FootballDataRetriever
 
