@@ -3,6 +3,7 @@ package requests
 import model.Competition
 import model.MatchDay
 import model.StandingsResponse
+import model.Status
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -22,5 +23,10 @@ internal interface FootballDataApiService {
     @GET("competitions/{competition}/matches/")
     fun listCompetitionMatchesByMatchDay(@Header("X-AUTH-TOKEN") auth: String,
                                          @Path("competition") competition: String,
-                                         @Query("matchday") matchDay: String) : Call<MatchDay>
+                                         @Query("matchday") matchDay: String? = null) : Call<MatchDay>
+
+    @GET("competitions/{competition}/matches/")
+    fun listCompetitionMatchesByStatus(@Header("X-AUTH-TOKEN") auth: String,
+                                       @Path("competition") competition: String,
+                                       @Query("status") status: Status? = null) : Call<MatchDay>
 }

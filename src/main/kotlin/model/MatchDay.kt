@@ -6,27 +6,21 @@ import java.time.LocalDate
 data class MatchDay(@SerializedName("competition") val competition: Competition,
                     @SerializedName("matches") val matches: List<Match>) {
 
-    private fun formatMatchesOnDay(date: LocalDate, list: List<Match>) : String {
-        val homeTeams = list.map { "|${it.homeTeam}   " }
-        val awayTeams = list.map { "   ${it.awayTeam}|" }
-        val longestHomeTeam = homeTeams.maxOfOrNull { it.length } ?: 0
-        val longestAwayTeam = awayTeams.maxOfOrNull { it.length } ?: 0
+    private fun formatMatchesOnDay(date: LocalDate, list: List<Match>, lht: Int, lat: Int) : String {
+        //                                     4 = score length
+        val borHor = "_".repeat(lht + lat + 4)
 
-        val borHor = "_".repeat(longestHomeTeam + longestAwayTeam + 4)
-        var format = "$date\n$borHor\n"
-
-        for(i in list.indices) {
-            format += homeTeams[i].padEnd(longestHomeTeam) +
-                    list[i].customScoreLine() +
-                    awayTeams[i].padStart(longestAwayTeam) +
-                    "\n"
-        }
-        return format + borHor
+        return "${date.toString().padEnd(borHor.length)}\n$borHor\n" + list.joinToString("\n") { match ->
+            "|${match.homeTeam}".padEnd(lht) +  match.customScoreLine() +
+                    "${match.awayTeam}|".padStart(lat)
+        } + "\n$borHor"
     }
 
     fun formatMatches() : String {
+        val longestHomeTeam = matches.maxOfOrNull { "|${it.homeTeam}   ".length } ?: 0
+        val longestAwayTeam = matches.maxOfOrNull { "   ${it.awayTeam}|".length } ?: 0
         return matches.groupBy { it.utcDate.toLocalDate() }
-                .map { (date: LocalDate, m: List<Match>) -> formatMatchesOnDay(date, m)}
-                .joinToString("\n\n")
+                .map { (date: LocalDate, m: List<Match>) -> formatMatchesOnDay(date, m, longestHomeTeam, longestAwayTeam)}
+                .joinToString("\n")
     }
 }

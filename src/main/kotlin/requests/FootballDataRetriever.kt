@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import contains
 import model.Competitions
+import model.Status
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.time.LocalDateTime
@@ -51,6 +52,35 @@ object FootballDataRetriever {
                         it.body()?.formatMatches() ?: "Something unexpected happened with the Response"
                     } else it.errorBody()!!.string()
                 }
+        } else "Competition \"$competition\" does not exist or is not included in current tier"
+
+        return "`$string`"
+    }
+
+    fun getMatchesByCompetitionAndStatus(competition: String, status: Status?) : String {
+        val string = if(contains<Competitions>(competition)) {
+            service.listCompetitionMatchesByStatus(token, competition, status)
+                    .execute()
+                    .let {
+                        if(it.isSuccessful) {
+                            it.body()?.formatMatches() ?: "Something unexpected happened with the Response"
+                        } else it.errorBody()!!.string()
+                    }
+        } else "Competition \"$competition\" does not exist or is not included in current tier"
+
+        return "`$string`"
+    }
+
+    fun getMatchesByCompetitionAndCurrentMatchday(competition: String) : String {
+        val string = if(contains<Competitions>(competition)) {
+            service.listCompetition(token, competition)
+                    .execute()
+                    .let {
+                        if(it.isSuccessful) {
+                            return getMatchesByCompetitionAndMatchday(competition,
+                                    it.body()!!.currentSeason.currentMatchday)
+                        } else it.errorBody()!!.string()
+                    }
         } else "Competition \"$competition\" does not exist or is not included in current tier"
 
         return "`$string`"

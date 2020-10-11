@@ -4,6 +4,7 @@ import model.HelpSubCommands
 import contains
 import model.handleSubCommand
 import requests.FootballDataRetriever
+import command.CommandReply.Companion.EMPTY_COMMAND
 
 class StandingsCommand : CommandExecutor {
 
@@ -26,6 +27,9 @@ class HelpCommand : CommandExecutor {
 class FixturesCommand : CommandExecutor {
     override fun execute(reply: CommandReply) {
         val (competition, matchday) = reply.subCommands()
-        reply.reply(FootballDataRetriever.getMatchesByCompetitionAndMatchday(competition, matchday))
+        val rep = if(matchday == EMPTY_COMMAND) {
+            FootballDataRetriever.getMatchesByCompetitionAndCurrentMatchday(competition)
+        } else FootballDataRetriever.getMatchesByCompetitionAndMatchday(competition, matchday)
+        reply.reply(rep)
     }
 }
