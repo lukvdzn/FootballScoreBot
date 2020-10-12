@@ -13,4 +13,4 @@ Standings Bundesliga:
 
 Help:
 
-![Fixtures](/images/cl_fixtures_current_matchday.PNG)
+![Fixtures](/images/help_fixtures.PNG)
