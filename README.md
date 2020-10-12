@@ -5,10 +5,13 @@ Simple Discord Bot fetching Football standings, fixtures:
 
 Commands:
 Fixtures for competition and matchday:
-![Fixtures](/images/cl_fixtures_current_matchday.png)
+
+![Fixtures](/images/cl_fixtures_current_matchday.PNG)
 
 Standings Bundesliga:
-![Standings](/images/standings_bl1.png)
+
+![Standings](/images/standings_bl1.PNG)
 
 Help:
-![Help](/images/help_fixtures.png)
+
+![Help](/images/help_fixtures.PNG)
