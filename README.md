@@ -7,7 +7,7 @@ Fixtures for competition and matchday:
 ![Fixtures](/images/cl_fixtures_current_matchday.png)
 
 Standings Bundesliga:
-![Standings](images/standings_bl1.png)
+![Standings](/images/standings_bl1.png)
 
 Help:
-![Help](images/help_fixtures.png)
+![Help](/images/help_fixtures.png)
