@@ -10,6 +10,7 @@ class CommandHandler {
     )
 
     fun handleCommand(event: MessageCreateEvent) {
+
         val command: String = event.message.content.split(" ")[0]
 
         for((c: String, ce) in commands) {

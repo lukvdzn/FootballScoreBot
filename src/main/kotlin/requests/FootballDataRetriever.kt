@@ -3,8 +3,8 @@ package requests
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import contains
-import model.Competitions
-import model.Status
+import model.*
+import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.time.LocalDateTime
@@ -31,58 +31,34 @@ object FootballDataRetriever {
 
     private val service: FootballDataApiService = retrofit.create(FootballDataApiService::class.java)
 
-    fun getStandingsByCompetition(competition: String) : String {
-        val string = if(contains<Competitions>(competition)) {
-            service.listCompetitionStandings(token, competition)
-                .execute()
-                .body()
-                ?.formatStandings()
-                ?: "Something unexpected happened with the Response"
+    private fun <T> getByCompetition(competition: String, call: Call<T>, format: T.() -> String) : String {
+        return if(contains<Competitions>(competition)) {
+                    call.execute()
+                    .let { if(it.isSuccessful) it.body()!!.format() else it.errorBody()!!.string() }
         } else "Competition \"$competition\" does not exist or is not included in current tier"
+    }
 
-        return "`$string`"
+    fun getStandingsByCompetition(competition: String) : String {
+        return getByCompetition(competition, service.listCompetitionStandings(token, competition),
+                StandingsResponse::formatStandings)
     }
 
     fun getMatchesByCompetitionAndMatchday(competition: String, matchDay: String) : String {
-        val string = if(contains<Competitions>(competition)) {
-            service.listCompetitionMatchesByMatchDay(token, competition, matchDay)
-                .execute()
-                .let {
-                    if(it.isSuccessful) {
-                        it.body()?.formatMatches() ?: "Something unexpected happened with the Response"
-                    } else it.errorBody()!!.string()
-                }
-        } else "Competition \"$competition\" does not exist or is not included in current tier"
-
-        return "`$string`"
+        return getByCompetition(competition, service.listCompetitionMatchesByMatchDay(token, competition, matchDay),
+                MatchDay::formatMatches)
     }
 
     fun getMatchesByCompetitionAndStatus(competition: String, status: Status?) : String {
-        val string = if(contains<Competitions>(competition)) {
-            service.listCompetitionMatchesByStatus(token, competition, status)
-                    .execute()
-                    .let {
-                        if(it.isSuccessful) {
-                            it.body()?.formatMatches() ?: "Something unexpected happened with the Response"
-                        } else it.errorBody()!!.string()
-                    }
-        } else "Competition \"$competition\" does not exist or is not included in current tier"
+        return getByCompetition(competition, service.listCompetitionMatchesByStatus(token, competition, status),
+                MatchDay::formatMatches)
+    }
 
-        return "`$string`"
+    private fun getCurrentMatchday(competition: String) : String {
+        return getByCompetition(competition, service.listCompetition(token, competition), Competition::getMatchday)
     }
 
     fun getMatchesByCompetitionAndCurrentMatchday(competition: String) : String {
-        val string = if(contains<Competitions>(competition)) {
-            service.listCompetition(token, competition)
-                    .execute()
-                    .let {
-                        if(it.isSuccessful) {
-                            return getMatchesByCompetitionAndMatchday(competition,
-                                    it.body()!!.currentSeason.currentMatchday)
-                        } else it.errorBody()!!.string()
-                    }
-        } else "Competition \"$competition\" does not exist or is not included in current tier"
-
-        return "`$string`"
+        val currentMatchDay = getCurrentMatchday(competition)
+        return getMatchesByCompetitionAndMatchday(competition, currentMatchDay)
     }
 }

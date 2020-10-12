@@ -7,8 +7,9 @@ data class MatchDay(@SerializedName("competition") val competition: Competition,
                     @SerializedName("matches") val matches: List<Match>) {
 
     private fun formatMatchesOnDay(date: LocalDate, list: List<Match>, lht: Int, lat: Int) : String {
-        //                                     4 = score length
-        val borHor = "_".repeat(lht + lat + 4)
+        // Score has the form "xx:xx" regardless of scoreline or time
+        val fixScoreLength = 5
+        val borHor = "_".repeat(lht + lat + fixScoreLength)
 
         return "${date.toString().padEnd(borHor.length)}\n$borHor\n" + list.joinToString("\n") { match ->
             "|${match.homeTeam}".padEnd(lht) +  match.customScoreLine() +
@@ -20,7 +21,7 @@ data class MatchDay(@SerializedName("competition") val competition: Competition,
         val longestHomeTeam = matches.maxOfOrNull { "|${it.homeTeam}   ".length } ?: 0
         val longestAwayTeam = matches.maxOfOrNull { "   ${it.awayTeam}|".length } ?: 0
         return matches.groupBy { it.utcDate.toLocalDate() }
-                .map { (date: LocalDate, m: List<Match>) -> formatMatchesOnDay(date, m, longestHomeTeam, longestAwayTeam)}
+                .map { (d: LocalDate, m: List<Match>) -> formatMatchesOnDay(d, m, longestHomeTeam, longestAwayTeam) }
                 .joinToString("\n")
     }
 }

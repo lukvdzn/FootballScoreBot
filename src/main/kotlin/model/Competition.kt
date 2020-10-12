@@ -4,4 +4,6 @@ import com.google.gson.annotations.SerializedName
 
 data class Competition(@SerializedName("id") val id: String,
                        @SerializedName("name") val name: String,
-                       @SerializedName("currentSeason") val currentSeason: Season)
+                       @SerializedName("currentSeason") val currentSeason: Season) {
+    fun getMatchday() = currentSeason.currentMatchday
+}
