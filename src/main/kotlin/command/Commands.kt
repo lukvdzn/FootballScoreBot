@@ -4,7 +4,6 @@ import command.CommandReply.Companion.CSS_SOLARIZED_TEXT_TEMPLATE
 import requests.FootballDataRetriever
 import command.CommandReply.Companion.EMPTY_COMMAND
 import model.enums.Competitions
-import kotlin.reflect.typeOf
 
 class StandingsCommand : CommandExecutor {
 
