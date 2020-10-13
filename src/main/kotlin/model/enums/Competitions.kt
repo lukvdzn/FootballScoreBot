@@ -1,4 +1,4 @@
-package model
+package model.enums
 
 enum class Competitions(val competitionName: String) {
     BSA("Brazilian Division One"),

@@ -1,6 +1,7 @@
 package model
 
 import com.google.gson.annotations.SerializedName
+import model.enums.Status
 import java.time.LocalDateTime
 
 data class Result(@SerializedName("homeTeam") val homeTeam: Int = 0,

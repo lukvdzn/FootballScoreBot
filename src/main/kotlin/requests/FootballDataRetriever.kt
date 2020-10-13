@@ -4,6 +4,9 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import contains
 import model.*
+import model.CompetitionStandings
+import model.enums.Areas
+import model.enums.Status
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -31,34 +34,42 @@ object FootballDataRetriever {
 
     private val service: FootballDataApiService = retrofit.create(FootballDataApiService::class.java)
 
-    private fun <T> getByCompetition(competition: String, call: Call<T>, format: T.() -> String) : String {
-        return if(contains<Competitions>(competition)) {
-                    call.execute()
-                    .let { if(it.isSuccessful) it.body()!!.format() else it.errorBody()!!.string() }
-        } else "Competition \"$competition\" does not exist or is not included in current tier"
+    private fun <T> execute(call: Call<T>, format: T.() -> String) : String {
+        return call.execute().let { if(it.isSuccessful) it.body()!!.format() else it.errorBody()!!.string() }
     }
 
     fun getStandingsByCompetition(competition: String) : String {
-        return getByCompetition(competition, service.listCompetitionStandings(token, competition),
-                StandingsResponse::formatStandings)
+        return execute(service.listCompetitionStandings(token, competition),
+                CompetitionStandings::formatStandings)
     }
 
     fun getMatchesByCompetitionAndMatchday(competition: String, matchDay: String) : String {
-        return getByCompetition(competition, service.listCompetitionMatchesByMatchDay(token, competition, matchDay),
+        return execute(service.listCompetitionMatchesByMatchDay(token, competition, matchDay),
                 MatchDay::formatMatches)
     }
 
     fun getMatchesByCompetitionAndStatus(competition: String, status: Status?) : String {
-        return getByCompetition(competition, service.listCompetitionMatchesByStatus(token, competition, status),
+        return execute(service.listCompetitionMatchesByStatus(token, competition, status),
                 MatchDay::formatMatches)
     }
 
     private fun getCurrentMatchday(competition: String) : String {
-        return getByCompetition(competition, service.listCompetition(token, competition), Competition::getMatchday)
+        return execute(service.listCompetition(token, competition), Competition::getMatchday)
     }
 
     fun getMatchesByCompetitionAndCurrentMatchday(competition: String) : String {
-        val currentMatchDay = getCurrentMatchday(competition)
-        return getMatchesByCompetitionAndMatchday(competition, currentMatchDay)
+        return getCurrentMatchday(competition).let {
+            // Matchday has to be integer
+            it.toIntOrNull()?.run { getMatchesByCompetitionAndMatchday(competition, it) } ?: it
+        }
+    }
+
+    fun getTeamsByArea(area: String) : String {
+        var areaId: String = area
+        if(contains<Areas>(area)) {
+            areaId = enumValueOf<Areas>(area).id
+        }
+
+        return execute(service.listTeamsByArea(token, areaId), TeamsResponse::formatTeams)
     }
 }

@@ -6,7 +6,8 @@ class CommandHandler {
     private val commands: Map<String, CommandExecutor> = mapOf(
             "standings" to StandingsCommand(),
             "help" to HelpCommand(),
-            "fixtures" to FixturesCommand()
+            "fixtures" to FixturesCommand(),
+            "teams" to TeamsCommand()
     )
 
     fun handleCommand(event: MessageCreateEvent) {

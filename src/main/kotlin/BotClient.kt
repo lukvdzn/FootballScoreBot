@@ -18,7 +18,7 @@ object BotClient {
         client.eventDispatcher
                 .on(MessageCreateEvent::class.java)
                 .filter { it.message.author.map { user -> !user.isBot }.orElse(false) }
-                .subscribe { commandHandler.handleCommand(it as MessageCreateEvent)}
+                .subscribe { commandHandler.handleCommand(it)}
     }
 }
 

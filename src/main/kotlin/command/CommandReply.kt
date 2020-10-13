@@ -17,8 +17,6 @@ class CommandReply(private val event: MessageCreateEvent) {
         channel.createMessage(String.format(colorTemplate, text)).subscribe()
     }
 
-    // sub command may not exist -> Add another element "N/A" to prevent exception
-    fun subCommand() = (message.content.split(" ") + listOf(EMPTY_COMMAND))[1].toUpperCase()
     // drop main command
     fun subCommands() = (message.content.split(" ") + listOf(EMPTY_COMMAND, EMPTY_COMMAND)).toList()
         .drop(1)

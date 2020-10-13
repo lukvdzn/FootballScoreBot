@@ -3,13 +3,18 @@ package command
 import command.CommandReply.Companion.CSS_SOLARIZED_TEXT_TEMPLATE
 import requests.FootballDataRetriever
 import command.CommandReply.Companion.EMPTY_COMMAND
-import model.Competitions
+import model.enums.Competitions
+import kotlin.reflect.typeOf
 
 class StandingsCommand : CommandExecutor {
 
     override fun execute(reply: CommandReply) {
-        val competition: String = reply.subCommand()
-        val table: String = FootballDataRetriever.getStandingsByCompetition(competition)
+        val (competition) = reply.subCommands()
+        val table: String = if(competition == EMPTY_COMMAND) {
+            "Competition not specified.\nPlease check out the !help command for more infos."
+        } else {
+            FootballDataRetriever.getStandingsByCompetition(competition)
+        }
         reply.reply(table)
     }
 }
@@ -24,7 +29,7 @@ class HelpCommand : CommandExecutor {
             "FIXTURES" -> {
                 "!fixtures [competition] [matchday: 1-35]"
             }
-            else -> return "Available commands:\n!help fixtures\n!help standings"
+            else -> return "Available help commands:\n!help fixtures\n!help standings"
         }
         val competitions = Competitions.values()
                 .joinToString("\n") { "${it.name.padEnd(3)} : ${it.competitionName}" }
@@ -33,7 +38,7 @@ class HelpCommand : CommandExecutor {
 
 
     override fun execute(reply: CommandReply) {
-        val subCommand: String = reply.subCommand()
+        val (subCommand) = reply.subCommands()
         reply.reply(processSubCommand(subCommand), CSS_SOLARIZED_TEXT_TEMPLATE)
     }
 }
@@ -41,9 +46,23 @@ class HelpCommand : CommandExecutor {
 class FixturesCommand : CommandExecutor {
     override fun execute(reply: CommandReply) {
         val (competition, matchday) = reply.subCommands()
-        val rep = if(matchday == EMPTY_COMMAND) {
-            FootballDataRetriever.getMatchesByCompetitionAndCurrentMatchday(competition)
-        } else FootballDataRetriever.getMatchesByCompetitionAndMatchday(competition, matchday)
+        val rep: String = if(competition == EMPTY_COMMAND) {
+            "Competition not specified.\nPlease check out the !help command for more infos."
+            } else {
+                if(matchday == EMPTY_COMMAND) {
+                    FootballDataRetriever.getMatchesByCompetitionAndCurrentMatchday(competition)
+                } else FootballDataRetriever.getMatchesByCompetitionAndMatchday(competition, matchday)
+        }
         reply.reply(rep)
     }
+}
+
+class TeamsCommand : CommandExecutor {
+    override fun execute(reply: CommandReply) {
+        val (area) = reply.subCommands()
+        val rep = if(area == EMPTY_COMMAND) "Area not specified.\nPlease check out the !help command for more infos."
+            else FootballDataRetriever.getTeamsByArea(area)
+        reply.reply(rep)
+    }
+
 }

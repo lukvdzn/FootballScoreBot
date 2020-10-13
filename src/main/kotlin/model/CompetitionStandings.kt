@@ -1,29 +1,19 @@
 package model
 
 import com.google.gson.annotations.SerializedName
-
-data class Team(@SerializedName("id") val id: String,
-                @SerializedName("name") val name: String) {
-    override fun toString() = name
-}
+import model.enums.StandingsType
 
 data class TablePosition(@SerializedName("position") val position: String,
                          @SerializedName("team") val team: Team,
                          @SerializedName("points") val points: String)
-
-enum class StandingsType {
-    TOTAL,
-    HOME,
-    AWAY
-}
 
 data class Standings(@SerializedName("stage") val stage: String,
                      @SerializedName("type") val type: StandingsType,
                      @SerializedName("group") val group: String,
                      @SerializedName("table") val table: List<TablePosition>)
 
-data class StandingsResponse(@SerializedName("competition") val competition: Competition,
-                             @SerializedName("standings") val standings: List<Standings>) {
+data class CompetitionStandings(@SerializedName("competition") val competition: Competition,
+                                @SerializedName("standings") val standings: List<Standings>) {
 
     private fun formatSingleTable(table: List<TablePosition>): String {
         val preSep: List<String> = table.map { " ${it.position}. ${it.team.name} " }
