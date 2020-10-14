@@ -1,5 +1,6 @@
 package command
 
+import command.commands.*
 import discord4j.core.event.domain.message.MessageCreateEvent
 
 class CommandHandler {
@@ -7,11 +8,11 @@ class CommandHandler {
             "standings" to StandingsCommand(),
             "help" to HelpCommand(),
             "fixtures" to FixturesCommand(),
-            "teams" to TeamsCommand()
+            "teams" to TeamsCommand(),
+            "team" to TeamCommand()
     )
 
     fun handleCommand(event: MessageCreateEvent) {
-
         val command: String = event.message.content.split(" ")[0]
 
         for((c: String, ce) in commands) {

@@ -9,36 +9,38 @@ data class TablePosition(@SerializedName("position") val position: String,
 
 data class Standings(@SerializedName("stage") val stage: String,
                      @SerializedName("type") val type: StandingsType,
-                     @SerializedName("group") val group: String,
+                     @SerializedName("group") val group: String?,
                      @SerializedName("table") val table: List<TablePosition>)
 
 data class CompetitionStandings(@SerializedName("competition") val competition: Competition,
                                 @SerializedName("standings") val standings: List<Standings>) {
 
-    private fun formatSingleTable(table: List<TablePosition>): String {
-        val preSep: List<String> = table.map { " ${it.position}. ${it.team.name} " }
-        val postSep: List<String> = table.map { " ${it.points} " }
+    // Either companion vals or Gson Expose() annotation needed, Gson includes all fields from instance for deserialization
+    companion object {
+        private const val posTeamTemplate: String = "| %s. %s "
+        private const val pointsTemplate: String = "| %s |"
+    }
 
-        // find longest pre- and postSep string for padding
-        val longestPreSep: Int = preSep.maxOfOrNull { it.length } ?: 0
-        val longestPostSep: Int = postSep.maxOfOrNull { it.length } ?: 0
+    private fun formatSingleTable(table: List<TablePosition>, ltm: Int): String {
+        // fixed pointsTemplate Length
+        val fpl = 7
+        val borHor = "_".repeat(ltm + fpl)
 
-        val borHor = "_".repeat(longestPreSep + longestPostSep + 3)
-        var format = "$borHor\n"
-        for(i in table.indices) {
-            format += "|${preSep[i].padEnd(longestPreSep)}|${postSep[i].padEnd(longestPostSep)}|\n"
-        }
-
-        return format + borHor
+        return "$borHor\n" + table.joinToString("\n") {
+            String.format(posTeamTemplate, it.position, it.team.name).padEnd(ltm)  +
+                    String.format(pointsTemplate, it.points.padEnd(3))
+        } + "\n$borHor"
     }
 
     fun formatStandings() : String {
-        // standings include TOTAL, HOME, AWAY
-        return "${competition.name}\n\n" + if(standings.size == 3) {
-            formatSingleTable(standings[0].table)
-        } else { // competition includes groups, stages
-            val standings: List<Standings> = standings.filter { it.type == StandingsType.TOTAL }
-            standings.joinToString(separator = "\n") { s -> "${s.group}\n${formatSingleTable(s.table)}\n" }
-        }
+        // standings include TOTAL, HOME, AWAY tables and groups for european/world club competitions
+        val standings: List<Standings> = standings.filter { it.type == StandingsType.TOTAL }
+        // longest team name to determine horizontal line length for printed table
+        val ltm: Int = standings.map { it.table }
+                .flatten()
+                .maxOfOrNull { String.format(posTeamTemplate, it.position, it.team.name).length } ?: 0
+
+        return "${competition.name}\n" + standings.joinToString(separator = "\n") {
+            "${it.group ?: ""}\n${formatSingleTable(it.table, ltm)}\n" }
     }
 }

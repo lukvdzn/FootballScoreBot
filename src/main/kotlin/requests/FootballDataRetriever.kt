@@ -4,9 +4,9 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import contains
 import model.*
-import model.CompetitionStandings
 import model.enums.Areas
 import model.enums.Status
+import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -16,20 +16,27 @@ import java.time.ZonedDateTime
 /** Football data provided by the Football-Data.org API */
 
 object FootballDataRetriever {
-    // authentication token for api
-    private val token: String = System.getenv("X_AUTH_TOKEN")
+    // set default header for all requests to the football data api
+    private val okHttpClient: OkHttpClient = OkHttpClient().newBuilder().addInterceptor { chain ->
+        // authentication token for api
+        val token: String = System.getenv("X_AUTH_TOKEN")
+        val request = chain.request().newBuilder().addHeader("X-AUTH-TOKEN", token).build()
+        chain.proceed(request)
+    }.build()
 
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl("https://api.football-data.org/v2/")
+        .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create(
-            GsonBuilder()
-                .registerTypeAdapter(LocalDateTime::class.java,
-                    // Utc date time adapter for LocalDateTime
-                    JsonDeserializer {
-                            json, _, _ -> ZonedDateTime.parse(json.asJsonPrimitive.asString).toLocalDateTime()
-                    }
-                )
-                .create()))
+                GsonBuilder()
+                        .registerTypeAdapter(LocalDateTime::class.java,
+                                // Utc date time adapter for LocalDateTime
+                                JsonDeserializer { json, _, _ ->
+                                    ZonedDateTime.parse(json.asJsonPrimitive.asString).toLocalDateTime()
+                                }
+                        )
+                        .create())
+        )
         .build()
 
     private val service: FootballDataApiService = retrofit.create(FootballDataApiService::class.java)
@@ -39,22 +46,20 @@ object FootballDataRetriever {
     }
 
     fun getStandingsByCompetition(competition: String) : String {
-        return execute(service.listCompetitionStandings(token, competition),
-                CompetitionStandings::formatStandings)
+        return execute(service.listCompetitionStandings(competition), CompetitionStandings::formatStandings)
     }
 
     fun getMatchesByCompetitionAndMatchday(competition: String, matchDay: String) : String {
-        return execute(service.listCompetitionMatchesByMatchDay(token, competition, matchDay),
-                MatchDay::formatMatches)
+        return execute(service.listCompetitionMatchesByMatchDay(competition, matchDay), MatchDay::formatMatches)
     }
 
+    @Suppress("unused")
     fun getMatchesByCompetitionAndStatus(competition: String, status: Status?) : String {
-        return execute(service.listCompetitionMatchesByStatus(token, competition, status),
-                MatchDay::formatMatches)
+        return execute(service.listCompetitionMatchesByStatus(competition, status), MatchDay::formatMatches)
     }
 
     private fun getCurrentMatchday(competition: String) : String {
-        return execute(service.listCompetition(token, competition), Competition::getMatchday)
+        return execute(service.listCompetition(competition), Competition::getMatchday)
     }
 
     fun getMatchesByCompetitionAndCurrentMatchday(competition: String) : String {
@@ -69,7 +74,10 @@ object FootballDataRetriever {
         if(contains<Areas>(area)) {
             areaId = enumValueOf<Areas>(area).id
         }
+        return execute(service.listTeamsByArea(areaId), TeamsInArea::formatTeams)
+    }
 
-        return execute(service.listTeamsByArea(token, areaId), TeamsResponse::formatTeams)
+    fun getTeam(id: String) : String {
+        return execute(service.listTeamById(id), Team::formatTeam)
     }
 }
