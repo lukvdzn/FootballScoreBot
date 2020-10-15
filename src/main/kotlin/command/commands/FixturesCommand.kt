@@ -2,6 +2,7 @@ package command.commands
 
 import command.CommandExecutor
 import command.CommandReply
+import model.enums.Competitions
 import requests.FootballDataRetriever
 
 class FixturesCommand : CommandExecutor {
@@ -15,5 +16,9 @@ class FixturesCommand : CommandExecutor {
                 } else FootballDataRetriever.getMatchesByCompetitionAndMatchday(competition, matchday)
         }
         reply.reply(rep)
+    }
+
+    override fun displayHelpUsage(): String {
+        return "!fixtures [competition] [matchday: 1-35]\nAvailable Competitions:\n\n${Competitions.displayCompetitions()}"
     }
 }

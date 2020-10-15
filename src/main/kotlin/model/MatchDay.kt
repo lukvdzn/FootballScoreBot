@@ -18,7 +18,7 @@ data class MatchDay(@SerializedName("competition") val competition: Competition,
         return "$formatDate\n$borHor\n" + list.joinToString("\n") { match ->
             "|${match.homeTeam.name}".padEnd(lht) +  match.customScoreLine() +
                     "${match.awayTeam.name}|".padStart(lat)
-        } + "\n$borHor"
+        } + "\n$borHor\n"
     }
 
     fun formatMatches() : String {

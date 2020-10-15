@@ -1,5 +1,6 @@
 package model.enums
 
+// TIER_ONE values
 enum class Competitions(val competitionName: String) {
     BSA("Brazilian Division One"),
     PL("Premier League"),
@@ -13,4 +14,10 @@ enum class Competitions(val competitionName: String) {
     PPL("Portuguese Primera Dvision"),
     PD("La Liga"),
     WC("World Cup");
+
+    companion object {
+        fun displayCompetitions() : String {
+            return values().joinToString("\n") { "${it.name.padEnd(3)} : ${it.competitionName}" }
+        }
+    }
 }

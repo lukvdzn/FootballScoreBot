@@ -1,5 +1,6 @@
 package command
 
-fun interface CommandExecutor {
+interface CommandExecutor {
     fun execute(reply: CommandReply)
+    fun displayHelpUsage() : String
 }

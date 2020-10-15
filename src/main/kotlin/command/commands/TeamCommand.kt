@@ -10,4 +10,8 @@ class TeamCommand : CommandExecutor {
         val (teamId) = reply.subCommands()
         reply.reply(FootballDataRetriever.getTeam(teamId))
     }
+
+    override fun displayHelpUsage(): String {
+        return "!team [id: can be fetched from teams command]"
+    }
 }
